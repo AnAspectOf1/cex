@@ -9,83 +9,83 @@
 
 #include <setjmp.h>
 #include <stdlib.h>
+#ifndef NDEBUG
+#include <stdio.h>
+#endif
 
 
 typedef unsigned int cex_t;
+typedef void (*cex_free_t)(void*);
 
 typedef struct cex_exc {
 	cex_t code;
 	void* data;
+	cex_free_t free;
 } cex_exc_t;
+#define CEX_EXC_INIT_DEF \
+	{ .code = 0, .data = 0, .free = free }
 
-struct _cex_exc {
-	cex_exc_t exc;
-	void (*free)(void*);
+struct _cex_exc_ptr {
+	cex_exc_t* exc;
+	unsigned char managed;
 };
 
-struct _cex_exc_buf {
+struct _cex_exc_ctx {
 	void* prev;
 	jmp_buf jmp;
-	struct _cex_exc* exc;
+	int mode;
 };
 
-extern struct _cex_exc_buf* _cex_cur_buf;
+enum _cex_mode {
+	_cex_mode_begin = 0,	/* Run for the first time. */
+	_cex_mode_try,
+	_cex_mode_raise,	/* An exception has been raised. */
+	_cex_mode_catch	/* Ready to catch the exception. */
+};
 
-#define CEX_TRY { \
-	struct _cex_exc_buf __cex_buf = { .prev =  _cex_cur_buf, .exc = 0 }; \
-	_cex_cur_buf = &__cex_buf; \
-	if ( !setjmp( __cex_buf.jmp ) ) {
-#define _CEX_CATCH \
-		_cex_cur_buf = (struct _cex_exc_buf*)_cex_cur_buf->prev; \
-	} else { \
-		_cex_cur_buf = (struct _cex_exc_buf*)_cex_cur_buf->prev;
+extern struct _cex_exc_ctx* _cex_cur_ctx;
+extern struct _cex_exc_ctx* _cex_cur_tcc;
+extern struct _cex_exc_ptr _cex_exc_ptr;
+#define CEX (_cex_exc_ptr.exc)
+
+int _cex_new_ctx();
+int _cex_worker();
+void _cex_raise( cex_t, void*, cex_free_t );
+void _cex_raise_exc( cex_exc_t* exc );
+
+#ifndef NDEBUG
+#define CEX_ASSERT( COND, MSG ) \
+	{ if ( COND ) { fprintf( stderr, "Assertion: %s.\n", MSG ); exit(1); } }
+#endif
+
+#define CEX_TRY \
+	if ( _cex_new_ctx() && (_cex_cur_tcc->mode = setjmp( _cex_cur_tcc->jmp )) >= 0 ) \
+	while ( _cex_worker() ) \
+	if ( _cex_cur_tcc->mode == _cex_mode_try )
+
 #define CEX_CATCH \
-	_CEX_CATCH \
-	const cex_exc_t* e = &__cex_buf.exc->exc; \
-	void (*e_free)(void*) = __cex_buf.exc->free;
-#define CEX_CATCHN( NAME ) \
-	_CEX_CATCH \
-	const cex_exc_t* NAME = &__cex_buf.exc->exc; \
-	void (*NAME##_free)(void*) = __cex_buf.exc->free;
-#define CEX_FINISH } \
-	if ( __cex_buf.exc != 0 ) \
-		__cex_buf.exc->free( __cex_buf.exc->exc.data ); } \
+	else if ( _cex_cur_tcc->mode == _cex_mode_catch )
 
-#define _CEX_REL_BUF { \
-	struct _cex_exc_buf* old = _cex_cur_buf; \
-	_cex_cur_buf = (struct _cex_exc_buf*)_cex_cur_buf->prev; \
-	if ( old->exc != 0 ) \
-		old->exc->free( old->exc->exc.data ); }
-
-#define CEX_RAISE( EXC, FREE ) \
-	_cex_cur_buf->exc = malloc( sizeof( cex_exc_t ) ); \
-	_cex_cur_buf->exc->exc = EXC; \
-	_cex_cur_buf->exc->free = FREE; \
-	longjmp( _cex_cur_buf->jmp, 1 );
+#define CEX_RAISE( EXC ) \
+	_cex_raise_exc( &(EXC) )
+#define CEX_RAISEF( CODE, DATA, FREE ) \
+	_cex_raise( CODE, DATA, FREE )
 #define CEX_RAISEC( CODE ) \
-	_cex_cur_buf->exc = malloc( sizeof( cex_exc_t ) ); \
-	_cex_cur_buf->exc->exc.code = CODE; \
-	_cex_cur_buf->exc->exc.data = 0; \
-	_cex_cur_buf->exc->free = free; \
-	longjmp( _cex_cur_buf->jmp, 1 );
+	_cex_raise( CODE, 0, free )
 #define CEX_RAISED( CODE, DATA ) \
-	_cex_cur_buf->exc = malloc( sizeof( cex_exc_t ) ); \
-	_cex_cur_buf->exc->exc.code = CODE; \
-	_cex_cur_buf->exc->exc.data = DATA; \
-	_cex_cur_buf->exc->free = free; \
-	longjmp( _cex_cur_buf->jmp, 1 );
+	_cex_raise( CODE, DATA, free )
 #define CEX_RERAISE \
-	_cex_cur_buf->exc = __cex_buf.exc; \
-	longjmp( _cex_cur_buf->jmp, 1 );
+	_cex_reraise()
 
 
-#define CATCH CEX_CATCH
-#define CATCHN( NAME ) CEX_CATCHN( NAME )
-#define FINISH CEX_FINISH
-#define RAISE( EXC, FREE ) CEX_RAISE( EXC, FREE )
-#define RAISEC( CODE ) CEX_RAISEC( CODE )
-#define RAISED( CODE, DATA ) CEX_RAISED( CODE, DATA )
-#define RERAISE CEX_RERAISE
-#define TRY CEX_TRY
+/* All keywords */
+#define catch CEX_CATCH
+#define raise( EXC, FREE ) CEX_RAISE( EXC, FREE )
+#define raisec( CODE ) CEX_RAISEC( CODE )
+#define raised( CODE, DATA ) CEX_RAISED( CODE, DATA )
+#define raisef( CODE, DATA, FREE ) CEX_RAISEF( CODE, DATA, FREE )
+#define reraise CEX_RERAISE
+#define try CEX_TRY
+
 
 #endif//_CEX_H

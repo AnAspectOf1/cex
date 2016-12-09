@@ -1,0 +1,11 @@
+A try-catch statement consists of one try block, and one catch block. Each catch block is put right after the try block with no code in between.
+Example:
+	TRY {
+		...code...
+	}
+	CATCH {
+		...code...
+	}
+Once an exception is raised within the try block, execution of that block will stop and transfer to the beginning of the catch block.
+
+An exception consists of an error code, and optionally some additional data structure that can be used to provide the catch block with error information.

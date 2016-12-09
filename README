@@ -2,21 +2,19 @@ Cex is a C library that gives the programmer exception-style error handling.
 
 A simple example for exceptions with only error codes would be:
 
-TRY
+TRY {
 	...code...
 	if ( failed )
 		RAISEC( my_error_code );
 	...code...
-CATCH
+}
+CATCH {
 	...other error codes...
 	else if ( e->code == my_error_code )
 		printf( "It has failed.\n" )
 	...other error codes...
-FINISH
+}
 
-Instead of returning error codes or some sort of status indication, like many C code does, cex lets you 'raise' exceptions.
-When an exception is raised, any code after the raise within a TRY 'block' won't be executed anymore and the program will continue within the 'catch block' of the corresponding try block.
-This also works with functions. If an exception is raised within a function that doesn't use its own TRY-CATCH mechanism, the lowest CATCH block of the TRY-CATCH mechanism that is (possibly indirectly) executing that function, will catch the exception.
-Every TRY block needs to be terminated by a CATCH or CATCHN block and each CATCH or CATCHN block needs to be terminated by the FINISH macro.
+See doc/ for more info.
 
 

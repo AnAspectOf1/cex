@@ -1,0 +1,17 @@
+There are a few things the developer using Cex would need to keep in mind.
+
+Using goto...
+First of all, using the goto statement inside a TRY or CATCH block causes undefined behavoir. This is because of how setjmp & longjmp are defined, but also because then Cex doesn't know which try or catch block we are in anymore.
+Also, controlling execution with return or longjmp are not allowed inside a try or catch block, this is because Cex doesn't know to which try or catch block execution goes.
+These are the limitations of Cex.
+
+Always put a catch block right after the try block...
+If you do something like this, which is not like it is intended:
+	try {
+		...code...
+	}
+	...some extra code...
+	catch {
+		...code...
+	}
+That extra code is going to break the try-catch statement, and C errors about the code behind the macro's is going to show up.

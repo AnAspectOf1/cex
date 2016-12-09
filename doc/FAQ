@@ -1,0 +1,55 @@
+* Why is there no 'finally' block?
+A finally block would be executed after the try block has executed succesfully and before an exception has been raised in the try block.
+This is useful in some programming languages because they offer a mechanism in their catch blocks where you can specify the type of the exception you catch.
+An example would be:
+	sql_con connection = sql_nocon;
+	try {
+		connection = sql_connect( ...my db... );
+
+                data = connection.query( "SELECT..." );
+                connection.exec( "UPDATE..." );
+	}
+	catch {
+		fprintf( stderr, "Something went wrong.\n" );
+	}
+	finally {
+		if ( connection != sql_nocon )
+			connection.close();
+	}
+The finally block is actually executed before the catch block, so that in the case that the catch block would raise any exception itself, resources have been cleaned appropriately.
+However, some might consider this bad practise because you would need to create cleanup code that acts according to a state.
+In this case, it needs to know whether the connection has been succesfully created in order to close it if it did.
+However, a try block is intended to only continue executing until something goes wrong.
+So if the cleanup code "connection.close();" would be inside the try block and after connection creation line, no if statement would be needed.
+For example:
+	try {
+		sql_con connection = sql_connect( ...my db... );
+	
+		connection.close();
+	}
+	catch {
+		fprintf( stderr, "Something about the connection failed." );
+	}
+This would be tidy.
+However, in between we need to do our work. If that fails, we still need to close our connection.
+One way of solving this is that we let the code that does our work, to not interfere with this try-catch mechanism.
+This could be done as follows:
+	try {
+                sql_con connection = sql_connect( ...my db... );
+
+		try {
+			data = connection.query( "SELECT..." );
+			connection.exec( "UPDATE..." );
+		}
+		catch {
+			fprintf( stderr, "The SQL queries failed.\n" );
+		}
+
+                connection.close();
+        }
+        catch {
+                fprintf( stderr, "Something about the connection failed." );
+        }
+So now it doesn't really matter whether the work fails or not, the connection is closed anyway.
+To the author(s) of Cex, this is the prefered method of exception handling.
+In this method, no finally blocks are necessary.
