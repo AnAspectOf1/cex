@@ -9,7 +9,7 @@ TRY {
 	...code...
 }
 CATCH
-	fprintf( stderr, "An error occurred with error code %d.\n", CEX );
+	fprintf( stderr, "An error occurred with error code %d.\n", CEX->code );
 
 See doc/ for more info.
 
