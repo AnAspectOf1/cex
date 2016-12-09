@@ -1,6 +1,6 @@
-Cex is a C library that gives the programmer exception-style error handling.
+Cex is a simple C library that gives the programmer exception-style error handling.
 
-A simple example for exceptions with only error codes would be:
+A very simple example would be:
 
 TRY {
 	...code...
@@ -8,12 +8,8 @@ TRY {
 		RAISEC( my_error_code );
 	...code...
 }
-CATCH {
-	...other error codes...
-	else if ( e->code == my_error_code )
-		printf( "It has failed.\n" )
-	...other error codes...
-}
+CATCH
+	fprintf( stderr, "An error occurred with error code %d.\n", CEX );
 
 See doc/ for more info.
 
