@@ -43,8 +43,8 @@ enum _cex_mode {
 	_cex_mode_catch	/* Ready to catch the exception. */
 };
 
-extern struct _cex_exc_ctx* _cex_cur_ctx;
-extern struct _cex_exc_ctx* _cex_cur_tcc;
+extern struct _cex_exc_ctx* _cex_cur_ctx_raise;	/* Points to the current context to raise to. */
+extern struct _cex_exc_ctx* _cex_cur_ctx_stat;	/* Points to the context the current try-catch statement is in. */
 extern struct _cex_exc_ptr _cex_exc_ptr;
 #define CEX (_cex_exc_ptr.exc)
 
@@ -59,12 +59,12 @@ void _cex_raise_exc( cex_exc_t* exc );
 #endif
 
 #define CEX_TRY \
-	if ( _cex_new_ctx() && (_cex_cur_tcc->mode = setjmp( _cex_cur_tcc->jmp )) >= 0 ) \
+	if ( _cex_new_ctx() && (_cex_cur_ctx_stat->mode = setjmp( _cex_cur_ctx_stat->jmp )) >= 0 ) \
 	while ( _cex_worker() ) \
-	if ( _cex_cur_tcc->mode == _cex_mode_try )
+	if ( _cex_cur_ctx_stat->mode == _cex_mode_try )
 
 #define CEX_CATCH \
-	else if ( _cex_cur_tcc->mode == _cex_mode_catch )
+	else if ( _cex_cur_ctx_stat->mode == _cex_mode_catch )
 
 #define CEX_RAISE( EXC ) \
 	_cex_raise_exc( &(EXC) )
