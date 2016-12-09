@@ -86,6 +86,7 @@ void _cex_raise_exc( cex_exc_t* exc );
 #define RAISEC( CODE ) CEX_RAISEC( CODE )
 #define RAISED( CODE, DATA ) CEX_RAISED( CODE, DATA )
 #define RAISEF( CODE, DATA, FREE ) CEX_RAISEF( CODE, DATA, FREE )
+#define RAISEM( CODE, MSG ) CEX_RAISEM( CODE, MSG )
 #define RERAISE CEX_RERAISE
 #define TRY CEX_TRY
 
