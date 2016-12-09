@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-const unsigned char test_count = 7;
+const unsigned char test_count = 8;
 unsigned char test_index = 0;
 
 void fail() {
@@ -70,7 +70,13 @@ int main() {
 				}
 				CATCH {
 					test( 7, "Exception in function caught" );
-					return 0;
+				
+					TRY
+						RAISEM( 4, "Message raised!" );
+					CATCH {
+						test( 8, CEX->data );
+						return 0;
+					}
 				}
 			}
 		}
