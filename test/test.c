@@ -6,7 +6,7 @@ const unsigned char test_count = 7;
 unsigned char test_index = 0;
 
 void fail() {
-	raisec(3);
+	RAISEC(3);
 }
 
 void print( const char* msg ) {
@@ -27,54 +27,54 @@ int main() {
 
 	print( "This is a test program to test whether Cex works correctly" );
 
-	try {
+	TRY {
 		test( 1, "First try block" );
-		raisec( 1 );
+		RAISEC( 1 );
 		error( 1, "Code in a try block after raisec should not be reached" );
 	}
-	catch {
+	CATCH {
 		test( 2, "First catch block" );
 
 		if ( CEX->code != 1 )
 			error( 2, "Raised error code did not match in catch block" );
 		
-		try {
+		TRY {
 			test( 3, "Try block in a catch block" );
 
-			try {
+			TRY {
 				test( 4, "Try block in a try block" );
 			}
-			catch {
+			CATCH {
 				error( 4, "Catch block executed with no exception" );
 			}
 
-			try {
-				try {
+			TRY {
+				TRY {
 					const char* message = "Raised data";
 					char* buffer = malloc( strlen( message ) );
 					strcpy( buffer, message );
-					raised( 2, buffer );
+					RAISED( 2, buffer );
 					error( 1, "Code in a try block after a raised should not be reached" );
 				}
-				catch {
+				CATCH {
 					test( 5, CEX->data );
 
-					reraise;
+					RERAISE;
 				}
 			}
-			catch {
+			CATCH {
 				test( 6, "Reraise caught" );
 				
-				try {
+				TRY {
 					fail();
 				}
-				catch {
+				CATCH {
 					test( 7, "Exception in function caught" );
 					return 0;
 				}
 			}
 		}
-		catch {
+		CATCH {
 			error( 3, "An exception was not caught locally" );
 		}
 	}
