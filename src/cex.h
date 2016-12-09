@@ -74,6 +74,8 @@ void _cex_raise_exc( cex_exc_t* exc );
 	_cex_raise( CODE, 0, free )
 #define CEX_RAISED( CODE, DATA ) \
 	_cex_raise( CODE, DATA, free )
+#define CEX_RAISEM( CODE, MSG ) \
+	_cex_raise_msg( CODE, MSG )
 #define CEX_RERAISE \
 	_cex_reraise()
 

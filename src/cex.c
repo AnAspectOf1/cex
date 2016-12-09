@@ -1,4 +1,6 @@
 #include "cex.h"
+#include <string.h>
+
 
 struct _cex_exc_ctx* _cex_cur_ctx_raise = 0;
 struct _cex_exc_ctx* _cex_cur_ctx_stat = 0;
@@ -62,6 +64,16 @@ void _cex_raise_exc( cex_exc_t* exc ) {
 	}
 
 	cex_raise_jump();
+}
+
+void _cex_raise_msg( cex_t code, char* message ) {
+	CEX_ASSERT( _cex_cur_ctx_raise == 0, "Can not raise outside any try block." );
+
+	size_t msg_len = strlen( message );
+	char* data_buf = malloc( msg_len + 1 );
+	strcpy( data_buf, message );
+
+	_cex_raise( code, data_buf, free );
 }
 
 void _cex_reraise() {
