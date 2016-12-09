@@ -84,7 +84,7 @@ int _cex_new_ctx() {
 	return 1;
 }
 
-int _cex_worker() {printf( "jallos %d\n", _cex_cur_ctx_stat->mode );
+int _cex_worker() {
 	/* The beginning */
 	if ( _cex_cur_ctx_stat->mode == _cex_mode_begin ) {
 		_cex_cur_ctx_stat->mode = _cex_mode_try;
