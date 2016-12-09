@@ -1,0 +1,24 @@
+Cex has no dependencies.
+This project has a makefile that uses gcc.
+To build a dynamic library (libcex.so), just use:
+
+	make
+
+If you want a static library, just use:
+
+	make static
+
+You can have both at the same time.
+To clean everything use:
+
+	make clean
+
+To test if it is working correctly, use:
+
+	make test
+
+To install Cex, use:
+
+	make install
+
+This will install the static or dynamic library, or both if both were build.
