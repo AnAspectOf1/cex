@@ -79,13 +79,13 @@ void _cex_raise_exc( cex_exc_t* exc );
 
 
 /* All keywords */
-#define catch CEX_CATCH
-#define raise( EXC, FREE ) CEX_RAISE( EXC, FREE )
-#define raisec( CODE ) CEX_RAISEC( CODE )
-#define raised( CODE, DATA ) CEX_RAISED( CODE, DATA )
-#define raisef( CODE, DATA, FREE ) CEX_RAISEF( CODE, DATA, FREE )
-#define reraise CEX_RERAISE
-#define try CEX_TRY
+#define CATCH CEX_CATCH
+#define RAISE( EXC, FREE ) CEX_RAISE( EXC, FREE )
+#define RAISEC( CODE ) CEX_RAISEC( CODE )
+#define RAISED( CODE, DATA ) CEX_RAISED( CODE, DATA )
+#define RAISEF( CODE, DATA, FREE ) CEX_RAISEF( CODE, DATA, FREE )
+#define RERAISE CEX_RERAISE
+#define TRY CEX_TRY
 
 
 #endif//_CEX_H
