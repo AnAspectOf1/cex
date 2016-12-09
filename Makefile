@@ -1,6 +1,8 @@
 CC_FLAGS =
 INSTALL_DIR = /usr/local
 
+all: static dynamic
+
 dynamic: bin/libcex.so include/cex.h
 
 static: bin/libcex.a include/cex.h
